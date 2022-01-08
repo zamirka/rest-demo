@@ -8,8 +8,9 @@ import (
 
 // Sto re ,,,
 type Store struct {
-	config *Config
-	db     *sql.DB
+	config         *Config
+	db             *sql.DB
+	userRepository *UserRepository
 }
 
 // New ...
@@ -26,7 +27,7 @@ func (s *Store) Open() error {
 		return err
 	}
 
-	rows, err := db.Query("select * from Products")
+	rows, err := db.Query("SELECT * FROM sqlite_master LIMIT 1;")
 	if err != nil {
 		return err
 	}
@@ -44,4 +45,17 @@ func (s *Store) Open() error {
 // Close ...
 func (s *Store) Close() {
 	s.db.Close()
+}
+
+// User ...
+func (s *Store) User() *UserRepository {
+	if s.userRepository != nil {
+		return s.userRepository
+	}
+
+	s.userRepository = &UserRepository{
+		store: s,
+	}
+
+	return s.userRepository
 }
